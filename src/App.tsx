@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import "./scss/reset.scss";
 import "./scss/style.scss";
 import axios from "axios";
@@ -16,20 +16,13 @@ function App() {
 		try {
 			const { data } = await axios.get("https://catfact.ninja/fact");
 			setFact(data.fact);
-			if (inputRef.current) {
-				inputRef.current.focus();
-				inputRef.current.setSelectionRange(
-					fact.match(/(\w+)/)[1].length,
-					fact.match(/(\w+)/)[1].length
-				);
-			}
 		} catch (err) {
 			setError(true);
-			return <h3>{err}</h3>;
+			getError(setError);
 		}
 	};
 
-	const getAge = async (e, name) => {
+	const getAge = async (e: React.FormEvent, name: string) => {
 		e.preventDefault();
 		try {
 			if (!names.includes(name) && typeName !== "") {
@@ -40,18 +33,18 @@ function App() {
 				setNames([...names, name]);
 				console.log(names);
 			} else if (names.includes(name)) {
-				getWasName();
+				getError(setWasName);
 			}
 		} catch (error) {
 			setError(true);
-			return <h3>{err}</h3>;
 		}
 	};
 
-	const getWasName = () => {
-		setWasName(true);
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const getError = (func: any) => {
+		func(true);
 		setTimeout(() => {
-			setWasName(false);
+			func(false);
 		}, 3000);
 	};
 	return (
@@ -62,6 +55,7 @@ function App() {
 					<input ref={inputRef} type="text" value={fact} />
 					<button onClick={getFact}>Get fact</button>
 				</div>
+				{error && <h3>Something went wrong...</h3>}
 				<div className="block">
 					<form
 						onSubmit={(e) => getAge(e, typeName)}
